@@ -40,50 +40,27 @@ public class MultiTenantDataSourceLookup extends MapDataSourceLookup{
 
     }
 
-    /**
-     * It initialize all the datasources. If multitenancy is activated it also
-     * add dataSources for different tenants on tenantDbConfigs or
-     * tenantDbConfigsOverride
-     *
-     * @param tenantResolver
-     * @throws IOException
-     */
     private void initializeDataSources(DataSource defaultDataSource) throws IOException {
-        //Get the path where server is stored, we will save configurations there,
-        //so if we redeploy it will not be deleted
         System.out.println("MultiTenancy configuration: ");
         System.out.println("---------------------------------------------------");
 
-        // Add the default tenant and datasource
         addDataSource("default", defaultDataSource);
         System.out.println("Configuring default tenant: DefaultTenant - Properties: " + defaultDataSource.toString());
 
-        // Add the other tenants
         System.out.println("-- GLOBAL TENANTS --");
         addTenantDataSources(TENANT_FILES_FOLDER);
         System.out.println("---------------------------------------------------");
     }
 
-    /**
-     * Add Tenant datasources based on the default properties on
-     * defaultDataSource and the configurations in dbConfigs.
-     *
-     * @param defaultDataSource
-     * @param dbConfigs
-     */
     private void addTenantDataSources(String tenantFilesFolder) {
-        // Add the custom tenants and datasources
         try {
             List<String> tenantFilesList = getTenantFiles(tenantFilesFolder);
             for (String tenantFile : tenantFilesList) {
-                // load properties
                 Properties props = new Properties();
                 props.load(getProperties(tenantFile));
 
-                // Get tenantId using the filename and pattern
                 String tenantId = tenantFile.replace(".properties", "");
                 
-                // Add new datasource with own configuration per tenant
                 HikariDataSource customDataSource = createTenantDataSource(props);
                 addDataSource(tenantId, customDataSource);
 
@@ -94,26 +71,12 @@ public class MultiTenantDataSourceLookup extends MapDataSourceLookup{
         }
     }
 
-    /**
-     * Create a datasource with tenant properties, if a property is not found in
-     * Properties it takes the property from the defaultDataSource
-     *
-     * @return a BoneCPDataSource based on tenant and default properties
-     */
     private HikariDataSource createTenantDataSource(Properties tenantProps) {
         HikariConfig config = getConfig(tenantProps);
         HikariDataSource customDataSource = new HikariDataSource(config);
         return customDataSource;
     }
 
-    /**
-     * Get the tenantId from filename using the pattern
-     *
-     * @param tenantPattern
-     * @param filename
-     * @return tenantId
-     * @throws IOException
-     */
     private List<String> getTenantFiles(String tenantFilesFolder) throws IOException {
         FilenameFilter filter = new FilenameFilter() {
             @Override
