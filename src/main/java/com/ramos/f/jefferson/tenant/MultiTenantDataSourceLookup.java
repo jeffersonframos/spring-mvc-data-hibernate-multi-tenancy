@@ -1,10 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.ramos.f.jefferson.tenant;
 
+import com.ramos.f.jefferson.util.DataSourceUtil;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.File;
@@ -19,10 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.lookup.MapDataSourceLookup;
 import org.springframework.stereotype.Component;
 
-/**
- *
- * @author jeffe
- */
 @Component(value = "dataSourceLookup")
 public class MultiTenantDataSourceLookup extends MapDataSourceLookup{
 
@@ -72,7 +64,7 @@ public class MultiTenantDataSourceLookup extends MapDataSourceLookup{
     }
 
     private HikariDataSource createTenantDataSource(Properties tenantProps) {
-        HikariConfig config = getConfig(tenantProps);
+        HikariConfig config = DataSourceUtil.getConfig(tenantProps);
         HikariDataSource customDataSource = new HikariDataSource(config);
         return customDataSource;
     }
@@ -87,20 +79,6 @@ public class MultiTenantDataSourceLookup extends MapDataSourceLookup{
         File file = new File(tenantFilesFolder);
         List<String> tenantIdList = Arrays.asList(file.list(filter));
         return tenantIdList;
-    }
-    
-    private HikariConfig getConfig(Properties properties){
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(properties.getProperty("hibernate.connection.url"));
-        config.setUsername(properties.getProperty("hibernate.connection.username"));
-        config.setPassword(properties.getProperty("hibernate.connection.password"));
-        try{
-            config.setMaximumPoolSize(Integer.parseInt(properties.getProperty("hibernate.connection.pool_size")));
-        }catch(IllegalStateException | NumberFormatException ex){
-            config.setMaximumPoolSize(5);
-        }
-        config.setConnectionTestQuery("SELECT 1");
-        return config;
     }
     
     private FileInputStream getProperties(String tenantId) throws IOException{
