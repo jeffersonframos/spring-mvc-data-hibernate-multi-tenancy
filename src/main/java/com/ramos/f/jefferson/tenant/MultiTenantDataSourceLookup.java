@@ -31,6 +31,19 @@ public class MultiTenantDataSourceLookup extends MapDataSourceLookup{
         }
 
     }
+    
+    public void shutdown() {
+        try {
+            List<String> tenantFilesList = getTenantFiles(TENANT_FILES_FOLDER);
+            for (String tenantFile : tenantFilesList) {
+                String tenantId = tenantFile.replace(".properties", "");
+                
+                ((HikariDataSource) this.getDataSource(tenantId)).close();
+            }
+        } catch (IOException ioe) {
+            System.out.println("Error getting the tenants: " + ioe.getMessage());
+        }
+    }
 
     private void initializeDataSources(DataSource defaultDataSource) throws IOException {
         System.out.println("MultiTenancy configuration: ");

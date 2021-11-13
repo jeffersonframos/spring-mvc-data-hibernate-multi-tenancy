@@ -1,5 +1,6 @@
 package com.ramos.f.jefferson.tenant;
 
+import com.zaxxer.hikari.HikariDataSource;
 import javax.sql.DataSource;
 import org.hibernate.engine.jdbc.connections.spi.AbstractDataSourceBasedMultiTenantConnectionProviderImpl;
 import org.springframework.jdbc.datasource.lookup.DataSourceLookup;
@@ -33,6 +34,10 @@ public class MultiTenantConnectionProviderImpl extends AbstractDataSourceBasedMu
             System.out.println(ex.getMessage());
             return defaultDataSource;
         }
+    }
+    
+    public void shutdown() {
+        ((HikariDataSource) defaultDataSource).close();
     }
     
 }
