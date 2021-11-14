@@ -1,5 +1,6 @@
 package com.ramos.f.jefferson.tenant;
 
+import static com.ramos.f.jefferson.util.Constants.DEFAULT_TENANT;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 
@@ -11,7 +12,7 @@ public class TenantIdentifierResolver implements CurrentTenantIdentifierResolver
         if(StringUtils.isNotBlank(tenantId)){
             return tenantId;
         }
-        return "default";
+        return DEFAULT_TENANT;
     }
 
     @Override
